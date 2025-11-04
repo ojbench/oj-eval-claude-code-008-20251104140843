@@ -40,23 +40,31 @@ class ACMOJClient:
         self.submission_log_file = '/workspace/submission_ids.log'
         
 
-    def _make_request(self, method: str, endpoint: str, data: Dict[str, Any] = None, 
-                     params: Dict[str, Any] = None) -> Optional[Dict]:
+    def _make_request(self, method: str, endpoint: str, data: Dict[str, Any] = None,
+                     params: Dict[str, Any] = None, headers: Dict[str, Any] = None) -> Optional[Dict]:
         url = f"{self.api_base}{endpoint}"
         try:
+            print(f"Making {method} request to {url}")
+            request_headers = headers or self.headers
+            print(f"Headers: {request_headers}")
+            print(f"Data: {data}")
+
             if method.upper() == "GET":
-                response = requests.get(url, headers=self.headers, params=params, timeout=10)
+                response = requests.get(url, headers=request_headers, params=params, timeout=10)
             elif method.upper() == "POST":
-                response = requests.post(url, headers=self.headers, data=data, timeout=10)
+                response = requests.post(url, headers=request_headers, data=data, timeout=10)
             else:
                 print(f"Unsupported HTTP method: {method}")
                 return None
+
+            print(f"Response status: {response.status_code}")
+            print(f"Response text: {response.text}")
 
             if response.status_code == 204:
                 return {"status": "success", "message": "Operation successful"}
 
             response.raise_for_status()
-            
+
             if response.content:
                 return response.json()
             else:
@@ -82,6 +90,17 @@ class ACMOJClient:
             print(f"✅ Submission ID {submission_id} saved to {self.submission_log_file}")
         except Exception as e:
             print(f"⚠️ Warning: Failed to save submission ID: {e}")
+
+    def submit_code(self, problem_id: int, language: str, code: str) -> Optional[Dict]:
+        # Try with form data as originally intended
+        from urllib.parse import urlencode
+        data = {"language": language, "code": code}
+
+        result = self._make_request("POST", f"/problem/{problem_id}/submit", data=data)
+        if result and 'id' in result:
+            self._save_submission_id(result['id'])
+
+        return result
 
     def submit_git(self, problem_id: int, git_url: str) -> Optional[Dict]:
         data = {"language": "git", "code": git_url}

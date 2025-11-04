@@ -1,0 +1,32 @@
+# Hello World - Problem 2076
+# Output: Hello World!
+
+# H = 72, e = 101, l = 108, o = 111, space = 32, W = 87, r = 114, d = 100, ! = 33
+
+# Set up characters
+A<72    # H
+B<101   # e
+C<108   # l
+D<111   # o
+E<32    # space
+F<87    # W
+G<114   # r
+H<100   # d
+J<33    # !
+
+# Output characters
+O<A
+O<B
+O<C
+O<C
+O<D
+O<E
+O<F
+O<C
+O<D
+O<G
+O<H
+O<J
+
+# Halt
+Z<1
